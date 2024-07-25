@@ -1,2 +1,2 @@
-# SQL_Chatbot_NLP_Project
- SQL Chatbot for Databases
+# SQL Chatbot for Databases
+ UNIPD NLP Project
