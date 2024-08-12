@@ -19,7 +19,7 @@
 				"docker-build"
 			],
 			"python": {
-				"file": "chat_app.py"
+				"file": "streamlit_app\\chat_app.py"
 			}
 		}
 	]
