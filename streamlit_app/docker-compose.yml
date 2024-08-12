@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  sqlchatbotnlpproject:
+    image: sqlchatbotnlpproject
+    build:
+      context: .
+      dockerfile: ./Dockerfile
