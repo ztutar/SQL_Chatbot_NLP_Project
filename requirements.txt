@@ -1,6 +1,0 @@
-langchain_community
-ollama
-groq
-langchain_experimental
-streamlit
-psycopg2
