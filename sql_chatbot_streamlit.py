@@ -7,10 +7,6 @@ Original file is located at
     https://colab.research.google.com/drive/14VzWz7ypd5rf99IlCa3moNOhdH53_Ejo
 """
 
-!pip install streamlit langchain_core langchain_community ollama
-from IPython.display import clear_output
-clear_output()
-
 import streamlit as st
 from langchain_community.chat_models import ChatOllama
 from langchain_community.utilities import SQLDatabase
@@ -19,32 +15,7 @@ import ollama as Ollama
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 import sqlite3
-
-!sudo apt-get install -y pciutils
-!curl -fsSL https://ollama.com/install.sh | sh # download ollama api
-clear_output()
-
-#Create a Python script to start the Ollama API server in a seperate thread
-
-import os
-import threading
-import subprocess
 import requests
-import json
-
-def ollama():
-  os.environ['OLLAMA_HOST'] = '127.0.0.1:11434'
-  os.environ['OLLAMA_ORIGINS'] = '*'
-  subprocess.Popen(['ollama', 'serve'])
-
-ollama_thread = threading.Thread(target=ollama)
-ollama_thread.start()
-
-!ollama pull llama3.1:70b
-clear_output()
-
-!ollama pull llama3.1:8b
-clear_output()
 
 def connectDatabase(url):
     response = requests.get(url)
@@ -72,8 +43,9 @@ def getDatabaseSchema():
   else:
     "Please connect to database"
 
+llm = ChatOllama(model=st.session_state.model, temperature=0.1)
 
-def getQueryFromLLM(llm, question, max_iteration=10):
+def getQueryFromLLM(question, max_iteration=10):
     template = """below is the schema of SQLite database, read the schema carefully about the table and column names. Also take care of table or column name case sensitivity.
     Finally answer user's question in the form of SQL query.
 
@@ -134,7 +106,7 @@ def getQueryFromLLM(llm, question, max_iteration=10):
         return None  # Return None if no response was generated
 
 
-def getResponseForQueryResult(llm, question, query, result):
+def getResponseForQueryResult(question, query, result):
     template2 = """below is the schema of SQLite database, read the schema carefully about the table and column names of each table.
     Also look into the conversation if available
     Finally write a response in natural language by looking into the conversation and result.
@@ -202,7 +174,6 @@ with st.sidebar:
 
 if connectBtn:
     connectDatabase(url=st.session_state.database)
-    llm = ChatOllama(model=st.session_state.model, temperature=0.1)
     st.success("Database connected")
 
 if question:
@@ -214,11 +185,11 @@ if question:
             "content": question
         })
 
-        query = getQueryFromLLM(llm, question)
+        query = getQueryFromLLM(question)
         print(query)
         result = runQuery(query)
         print(result)
-        response = getResponseForQueryResult(llm, question, query, result)
+        response = getResponseForQueryResult(question, query, result)
         st.session_state.chat.append({
             "role": "assistant",
             "content": response
